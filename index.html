@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Hole - Puppet Show</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+  <style>
+    :root {
+      --site-green: rgb(0, 113, 157);
+      --button-hover: rgb(1, 87, 121);
+    }
+    /* ============ RESET ============ */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      font-family: 'Trebuchet MS', Helvetica, sans-serif;
+      background-color: var(--site-green);
+    }
+
+    /* ============ HEADER ============ */
+    .title {
+      background-color:  rgb(0, 113, 157);
+      padding-top: 0.5em;
+      margin: 0;
+      text-align: center;
+      font-family: 'Trebuchet MS', Helvetica, sans-serif;
+      font-size: 5em;
+      color: white;
+    }
+
+    .titleDescription {
+      background-color: rgb(0, 113, 157);
+      padding: 0.5em 1em 2em;
+      margin: 0;
+      text-align: center;
+      font-family: 'Trebuchet MS', Helvetica, sans-serif;
+      font-size: 1em;
+      color: white;
+    }
+
+    /* ============ P5 CANVAS ============ */
+    .p5Container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 0 -5px 0;
+    }
+
+    /* ============ SECTIONS ============ */
+    .bottomBackground {
+      flex: 1;
+      background-color: var(--site-green);
+      margin: 0;
+    }
+
+    .heading {
+      /* Headings remain left-aligned; horizontal spacing comes from parent */
+      display: flex;
+      padding: 2em 0 0.2em 0;
+      margin: 0 0 1em 0;
+      width: 100%;
+      text-align: left;
+      box-sizing: border-box;
+      font-family: 'Trebuchet MS', Helvetica, sans-serif;
+      color: rgb(255, 255, 255);
+    }
+
+    .description {
+      text-align: left;
+      font-size: 1.25em;
+      margin: 0.5em 0 1em 0; 
+      font-family: 'Trebuchet MS', Helvetica, sans-serif;
+      color: rgb(255, 255, 255);
+    }
+
+    /* ============ CONTAINERS & BUTTONS ============ */
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      margin-bottom: 2em;
+      font-family: 'Trebuchet MS', Helvetica, sans-serif;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      margin: 10px;
+      background-color: #f1f1f1;
+      color:rgb(28, 28, 28);
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .button:hover {
+      background-color: var(--button-hover, rgb(1, 103, 3));
+      color: white;
+      border-color: var(--button-hover, rgb(1, 103, 3));
+    }
+
+    .button:active {
+      transform: scale(0.90);
+    }
+
+    /* wrapper to center the block of content while keeping inner text left-aligned */
+    .main-content {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: left;
+      padding: 0 1em;
+    }
+
+    /* simple stripe style for white band */
+    .whiteStripe {
+      background-color: white;
+      width: 100%;
+      height: 20px; /* adjust thickness as needed */
+      margin: 0;
+      padding: 0;
+    }
+
+    /* spacing above instructions section */
+    #instructionsHeading {
+      margin-top: 1em;
+    }
+
+    /* Video embed styling: white border and rounded corners */
+    .video-wrapper {
+      position: relative;
+      border: 8px solid white;
+      border-radius: 14px;
+      overflow: hidden;
+      max-width: 100%;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+      margin-bottom: 1em;
+      padding: 0;
+    }
+
+    .video-inner {
+      position: relative;
+      padding-top: 56.25%; /* 16:9 aspect ratio */
+    }
+
+    .video-inner iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    
+  </style>
+</head>
+
+<body>
+  <!-- Header -->
+  <h1 class="title">The Hole</h1>
+  <p class="titleDescription">A virtual puppet play about escaping from despair</p>
+  <p class="whiteStripe"></p>
+
+  <!-- P5 Canvas -->
+  <div class="p5Container">
+    <div id="divP5"></div>
+  </div>
+
+  <!-- Instructions & Controls -->
+  <div class="bottomBackground">
+    <p class="whiteStripe"></p>
+    <div class="main-content">
+      <h1 class="heading" id="instructionsHeading">Instructions</h1>
+      <p class="description">
+        Enable your webcam and use your hands to control the puppet's movements.
+      </p>
+      <p class="description">
+        To open the puppet's mouth, make a fist. To close the mouth, open your hand. 
+      </p>
+      <p class="description">
+        Use the buttons below or their corresponding keys to change the location and play sound effects.
+      </p>
+      <p class="description">
+        Field music will begin automatically on load; press the mute button or hit Key M to toggle all audio on or off.
+      </p>
+
+      <h1 class="heading">Location</h1>
+      <div class="container">
+        <div class="button" id="fieldsListener">Fields [Key Q]</div>
+        <div class="button" id="fieldWithHoleListener">Field with Hole [Key A]</div>
+        <div class="button" id="holeListener">Hole [Key W]</div>
+        <div class="button" id="holeRopeListener">Hole with Rope [Key S]</div>
+      </div>
+
+      <h1 class="heading">Sound Effects</h1>
+      <div class="container">
+        <div class="button" id="thudListener">Thud [Key Z]</div>
+        <div class="button" id="ropeListener">Rope Dropping [Key X]</div>    
+        <div class="button" id="grassStepListener"> Footsteps [Key C]</div>
+      </div>
+      <h1 class="heading">Sound Control</h1>
+      <div class="button" id="muteListener">Mute All [Key M]</div>
+
+      <h1 class="heading">The Official Play</h1>
+      <div class="description">
+        <div class="video-wrapper">
+          <div class="video-inner">
+            <iframe src="https://player.vimeo.com/video/1168350740?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" title="The Hole - Puppet Play"></iframe>
+          </div>
+        </div>
+        <script src="https://player.vimeo.com/api/player.js"></script>
+      </div>
+      <h1 class="heading">Credits</h1>
+      <p class="description">
+        Created and Illustrated by Baoxu Liang
+      </p>
+      <p class="description">
+        Coding Assisted by Copilot
+      </p>
+      <p class="description">
+        Sounds by the Pixabay Community
+      </p>
+      <p class="description">
+        Special thanks to Professor Juan Salamanca Garcia for guidance and support throughout the project
+      </p>
+    </div>
+  </div>
+
+  <!-- Audio Files -->
+  <audio id="fieldBGM" autoplay loop>
+    <source src="assets/fieldBackground.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="caveBGM" loop>
+    <source src="assets/caveBackground.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="thudSFX">
+    <source src="assets/thudSFX.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="ropeSFX">
+    <source src="assets/ropeSFX.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="grassStepSFX">
+    <source src="assets/grassStep.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Scripts -->
+  <script src="sketch.js"></script>
+</body>
+
+</html>
