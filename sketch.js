@@ -26,6 +26,7 @@ let fieldBGM;
 let caveBGM;
 let thudSFX;
 let ropeSFX;
+let grassStepSFX;
 let isMuted = false; // tracks whether audio is currently muted
 
 // site color (read from CSS --site-green in setup)
@@ -63,6 +64,8 @@ function preload() {
   caveBGM = document.getElementById('caveBGM');
   thudSFX = document.getElementById('thudSFX');
   ropeSFX = document.getElementById('ropeSFX');
+  grassStepSFX = document.getElementById('grassStepSFX');
+
 }
 
 function setup() {
