@@ -3,7 +3,7 @@ A virtual puppet play about escaping from despair.
 
 Created and Illustrated by Baoxu Liang
 
-Coding Assisted by Copilot
+Coding Assisted by Github Copilot
 
 Made with ML5 handpose
 
